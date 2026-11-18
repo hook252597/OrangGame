@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>오렌지 타이쿤</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff4e0; --card:#fffdf8; --ink:#4a2c12; --sub:#8a6a4c; --line:#f1dcc0;
+  --orange:#ff8a00; --orange-d:#e06f00; --leaf:#3f8f3a; --leaf-d:#2e6e2a; --gold:#ffc83d;
+  --good:#2e8b57; --bad:#d6453d;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{
+  font-family:"Noto Sans KR",system-ui,sans-serif; color:var(--ink);
+  background:
+    radial-gradient(circle at 10% 0%, #ffe2b0 0, transparent 40%),
+    radial-gradient(circle at 100% 100%, #ffe9c7 0, transparent 45%),
+    var(--bg);
+  min-height:100vh; padding-bottom:56px;
+  -webkit-user-select:none; user-select:none;
+}
+h1,h2,h3,.jua{font-family:"Jua","Noto Sans KR",sans-serif;font-weight:400}
+header{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:14px 20px; background:linear-gradient(90deg,var(--orange),#ffa733);
+  color:#fff; box-shadow:0 3px 0 var(--orange-d);
+}
+.brand{font-family:"Jua";font-size:28px;letter-spacing:.5px;text-shadow:0 2px 0 rgba(0,0,0,.15)}
+.rank{background:rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;font-family:"Jua";font-size:16px}
+.money{margin-left:auto;font-family:"Jua";font-size:30px;text-shadow:0 2px 0 rgba(0,0,0,.15);font-variant-numeric:tabular-nums}
+.money small{font-size:16px;opacity:.9;margin-left:6px}
+.goal{max-width:1240px;margin:14px auto 0;padding:0 16px}
+.goal .bar{position:relative;height:22px;background:#fff;border:2px solid var(--line);border-radius:999px;overflow:hidden}
+.goal .fill{height:100%;width:0;background:linear-gradient(90deg,#ffb347,var(--orange));transition:width .3s}
+.goal .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+main{
+  max-width:1240px;margin:14px auto;padding:0 16px;
+  display:grid;grid-template-columns:1.05fr 1fr 1.15fr;gap:14px;align-items:start;
+}
+@media (max-width:1000px){main{grid-template-columns:1fr 1fr}.shop{grid-column:1 / -1}}
+@media (max-width:640px){main{grid-template-columns:1fr}.money{font-size:24px;margin-left:0;width:100%}}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 4px 0 var(--line)}
+.card h2{margin:0 0 10px;font-size:22px}
+
+/* farm */
+.farm{text-align:center;position:relative;overflow:hidden}
+.event{
+  border-radius:12px;padding:8px 10px;margin-bottom:8px;font-family:"Jua";font-size:16px;
+  background:#fff1c9;border:2px dashed var(--gold);
+}
+.event.bad{background:#ffe1de;border-color:#f3a29b}
+#tree{
+  display:block;margin:4px auto 0;width:min(280px,80%);aspect-ratio:1;border:0;background:none;padding:0;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:transform .08s;
+}
+#tree:active{transform:scale(.95)}
+#tree.shake svg{animation:shake .25s}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+#tree svg{width:100%;height:100%;overflow:visible}
+.hint{margin-top:4px;color:var(--sub);font-size:14px}
+.hint b{color:var(--orange-d)}
+.rates{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.rate{background:#fff7ea;border:1px solid var(--line);border-radius:12px;padding:8px;font-size:13px;color:var(--sub)}
+.rate b{display:block;font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* market */
+.prod{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px dashed var(--line)}
+.prod:first-of-type{border-top:0}
+.prod .ico{font-size:32px;text-align:center}
+.prod .nm{font-weight:700}
+.prod .stock{font-family:"Jua";font-size:22px;font-variant-numeric:tabular-nums}
+.prod .price{font-size:13px;color:var(--sub)}
+.up{color:var(--good);font-weight:700}.down{color:var(--bad);font-weight:700}
+.prod .acts{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.prod.locked{opacity:.45}
+.btn{
+  font-family:"Jua";font-size:16px;border:0;border-radius:12px;padding:8px 14px;cursor:pointer;
+  background:var(--orange);color:#fff;box-shadow:0 3px 0 var(--orange-d);transition:transform .05s,filter .1s;
+}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--orange-d)}
+.btn:disabled{background:#d9c9b5;box-shadow:0 3px 0 #bfae98;cursor:not-allowed;filter:none;transform:none}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);padding:6px 10px;font-size:14px}
+.btn.ghost.on{background:var(--leaf);border-color:var(--leaf);color:#fff;box-shadow:0 3px 0 var(--leaf-d)}
+.btn.green{background:var(--leaf);box-shadow:0 3px 0 var(--leaf-d)}
+.market .note{font-size:12px;color:var(--sub);margin-top:8px;line-height:1.5}
+
+/* shop */
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.tab{font-family:"Jua";font-size:17px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:6px 14px;cursor:pointer;color:var(--ink)}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.qty{margin-left:auto;display:flex;gap:4px}
+.qty button{font-size:13px;padding:4px 8px}
+.list{display:flex;flex-direction:column;gap:8px;max-height:620px;overflow:auto;padding-right:4px}
+.item{
+  display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;
+  background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px;
+}
+.item .ico{font-size:30px;text-align:center}
+.item .t{font-family:"Jua";font-size:18px}
+.item .t .own{font-family:"Noto Sans KR";font-size:12px;background:#fff1dc;color:var(--orange-d);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:2px;font-weight:700}
+.item .d{font-size:12.5px;color:var(--sub);margin-top:2px}
+.item .side{display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:104px}
+.item .side .btn{font-size:14px;padding:7px 10px}
+.item.locked{opacity:.5}
+.item.locked .t{letter-spacing:2px}
+.item.afford{border-color:#ffc27a}
+.stats{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px}
+.stats span:nth-child(even){font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.danger{margin-top:16px;background:var(--bad);box-shadow:0 3px 0 #a8322c}
+
+/* news */
+.news{
+  position:fixed;left:0;right:0;bottom:0;height:44px;background:var(--ink);color:#ffe8c9;
+  display:flex;align-items:center;padding:0 16px;font-size:14px;gap:10px;z-index:5;overflow:hidden;white-space:nowrap
+}
+.news b{font-family:"Jua";color:var(--gold);font-weight:400;font-size:16px}
+.news #newsTxt{overflow:hidden;text-overflow:ellipsis;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* fx */
+.float{position:fixed;pointer-events:none;font-family:"Jua";font-size:22px;color:var(--orange-d);text-shadow:0 2px 0 #fff;z-index:20;animation:floatUp .9s ease-out forwards}
+@keyframes floatUp{to{transform:translateY(-60px);opacity:0}}
+.drop{position:fixed;pointer-events:none;font-size:26px;z-index:19;animation:drop .8s cubic-bezier(.5,0,1,1) forwards}
+@keyframes drop{to{transform:translate(var(--dx),120px) rotate(200deg);opacity:0}}
+#golden{
+  position:fixed;z-index:30;font-size:54px;border:0;background:none;cursor:pointer;padding:0;
+  filter:drop-shadow(0 0 12px gold) drop-shadow(0 0 4px #fff);animation:bob .6s ease-in-out infinite alternate;
+}
+@keyframes bob{to{transform:translateY(-10px) rotate(15deg)}}
+.toast{
+  position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:40;background:var(--ink);color:#fff;
+  font-family:"Jua";font-size:18px;padding:10px 18px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.2);
+  animation:toast 2.6s forwards;white-space:nowrap
+}
+@keyframes toast{0%{opacity:0;top:64px}10%,85%{opacity:1;top:84px}100%{opacity:0}}
+.modal{position:fixed;inset:0;background:rgba(74,44,18,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal[hidden]{display:none}
+.modal .box{background:var(--card);border-radius:20px;padding:24px;max-width:420px;width:100%;text-align:center;border:3px solid var(--line)}
+.modal h3{font-size:28px;margin:6px 0 8px}
+.modal p{color:var(--sub);line-height:1.6}
+.modal .btns{display:flex;gap:8px;justify-content:center;margin-top:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">🍊 오렌지 타이쿤</div>
+  <div class="rank" id="rank">귤밭 초보</div>
+  <div class="money">💰 <span id="money">0</span>원<small id="mps"></small></div>
+</header>
+
+<div class="goal">
+  <div class="bar"><div class="fill" id="goalFill"></div><div class="txt" id="goalTxt"></div></div>
+</div>
+
+<main>
+  <section class="card farm">
+    <div class="event" id="eventBanner" hidden></div>
+    <button id="tree" aria-label="오렌지 나무 (눌러서 수확)">
+      <svg viewBox="0 0 200 200">
+        <ellipse cx="100" cy="188" rx="70" ry="9" fill="#e9cfa7"/>
+        <path d="M90 190 L94 120 Q100 112 106 120 L110 190 Z" fill="#8b5a2b"/>
+        <path d="M98 150 Q80 135 70 128" stroke="#8b5a2b" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path d="M102 140 Q120 128 130 122" stroke="#8b5a2b" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <g fill="#3f8f3a">
+          <circle cx="100" cy="72" r="52"/><circle cx="58" cy="100" r="38"/><circle cx="142" cy="100" r="38"/>
+          <circle cx="75" cy="55" r="32"/><circle cx="128" cy="55" r="32"/>
+        </g>
+        <g fill="#4fa649" opacity=".7">
+          <circle cx="85" cy="50" r="18"/><circle cx="130" cy="80" r="16"/><circle cx="60" cy="92" r="14"/>
+        </g>
+        <g id="fruits"></g>
+      </svg>
+    </button>
+    <div class="hint">나무를 눌러 귤을 따세요! 한 번에 <b>+<span id="perClick">1</span>🍊</b></div>
+    <div class="rates">
+      <div class="rate">🍊 수확<b id="rO">0/초</b></div>
+      <div class="rate">🧃 착즙<b id="rJ">0/초</b></div>
+      <div class="rate">🫙 잼 생산<b id="rM">0/초</b></div>
+      <div class="rate">🚚 자동 판매<b id="rT">0개/초</b></div>
+    </div>
+  </section>
+
+  <section class="card market">
+    <h2>🏪 창고 & 시장</h2>
+    <div id="prods"></div>
+    <div class="note">시세는 몇 초마다 오르내려요. <b class="up">▲</b>일 때 팔면 이득! <br>자동판매를 켜두면 🚚 배달 트럭이 대신 팔아요.</div>
+  </section>
+
+  <section class="card shop">
+    <div class="tabs">
+      <button class="tab on" data-tab="build">🏗️ 시설</button>
+      <button class="tab" data-tab="upg">⚡ 업그레이드</button>
+      <button class="tab" data-tab="stat">📊 기록</button>
+      <div class="qty" id="qty">
+        <button class="btn ghost on" data-q="1">×1</button>
+        <button class="btn ghost" data-q="10">×10</button>
+      </div>
+    </div>
+    <div class="list" id="buildList"></div>
+    <div class="list" id="upgList" hidden></div>
+    <div id="statList" hidden>
+      <div class="stats" id="stats"></div>
+      <button class="btn danger" id="resetBtn">처음부터 다시 하기</button>
+    </div>
+  </section>
+</main>
+
+<footer class="news"><b>📰 오렌지 신문</b><span id="newsTxt">작은 귤밭에서 오렌지 제국의 꿈이 시작됩니다.</span></footer>
+
+<div class="modal" id="modal" hidden><div class="box"><div id="modalBody"></div><div class="btns" id="modalBtns"></div></div></div>
+
+<script>
+(() => {
+"use strict";
+const SAVE_KEY = "orange-tycoon-v1";
+const GOAL = 1e8;
+
+/* ---------- data ---------- */
+const PRODUCTS = {
+  o:{name:"오렌지", icon:"🍊", base:1},
+  j:{name:"오렌지 주스", icon:"🧃", base:8},
+  m:{name:"마멀레이드", icon:"🫙", base:45},
+};
+const BUILDINGS = [
+  {id:"tree",    name:"귤나무",     icon:"🌳", cost:15,     kind:"grow",  rate:0.5},
+  {id:"farmer",  name:"농부 고용",  icon:"👩‍🌾", cost:110,    kind:"grow",  rate:3},
+  {id:"truck",   name:"배달 트럭",  icon:"🚚", cost:400,    kind:"truck", rate:8},
+  {id:"press",   name:"착즙기",     icon:"🥤", cost:600,    kind:"press", rate:1},
+  {id:"orchard", name:"과수원",     icon:"🏡", cost:1200,   kind:"grow",  rate:16},
+  {id:"factory", name:"잼 공장",    icon:"🏭", cost:8000,   kind:"jam",   rate:1},
+  {id:"smart",   name:"스마트팜",   icon:"🛰️", cost:13000,  kind:"grow",  rate:90},
+  {id:"lab",     name:"품종 연구소", icon:"🧬", cost:160000, kind:"grow",  rate:520},
+  {id:"island",  name:"오렌지 섬",  icon:"🏝️", cost:2.2e6,  kind:"grow",  rate:3200},
+];
+const UPGRADES = [
+  {id:"scissors", name:"튼튼한 가위",   icon:"✂️", cost:50,     desc:"클릭 수확량 ×2"},
+  {id:"fert",     name:"천연 비료",     icon:"🌱", cost:700,    desc:"모든 🍊 생산량 ×2"},
+  {id:"gloves",   name:"농사 장갑",     icon:"🧤", cost:900,    desc:"클릭 수확량 ×3"},
+  {id:"organic",  name:"유기농 인증",   icon:"🏅", cost:1500,   desc:"🍊 판매가 ×1.5"},
+  {id:"truck2",   name:"냉장 트럭",     icon:"❄️", cost:4000,   desc:"트럭 판매 속도 ×3"},
+  {id:"bottle",   name:"프리미엄 병",   icon:"🍾", cost:6000,   desc:"🧃 판매가 ×2"},
+  {id:"golden",   name:"황금 가위",     icon:"🌟", cost:7500,   desc:"클릭 수확량 ×5"},
+  {id:"bee",      name:"꿀벌 수분",     icon:"🐝", cost:9000,   desc:"모든 🍊 생산량 ×2"},
+  {id:"press2",   name:"고속 착즙기",   icon:"⚙️", cost:12000,  desc:"착즙기·잼 공장 속도 ×2"},
+  {id:"smartclick",name:"스마트 수확",  icon:"📱", cost:25000,  desc:"클릭마다 초당 생산량의 10% 추가"},
+  {id:"recipe",   name:"할머니 레시피", icon:"👵", cost:40000,  desc:"🫙 판매가 ×2"},
+  {id:"drone",    name:"수확 드론",     icon:"🚁", cost:120000, desc:"모든 🍊 생산량 ×3"},
+  {id:"brand",    name:"오렌지 브랜드", icon:"📺", cost:250000, desc:"모든 판매가 ×2"},
+  {id:"export",   name:"해외 수출",     icon:"🚢", cost:3e6,    desc:"모든 판매가 ×3"},
+  {id:"robot",    name:"착즙 로봇",     icon:"🤖", cost:8e6,    desc:"착즙기·잼 공장 속도 ×3"},
+];
+const RANKS = [
+  [0,"귤밭 초보"],[1e3,"새내기 농부"],[2e4,"감귤 농부"],[3e5,"과수원 주인"],
+  [5e6,"주스 사업가"],[3e7,"오렌지 재벌"],[1e8,"오렌지 제국 황제 👑"],
+];
+const NEWS = [
+  "비타민C가 감기 예방에 좋다는 기사에 오렌지 판매량 증가!",
+  "옆 마을 사과 농장, 오렌지 농장 성공에 질투 중.",
+  "오렌지 주스는 역시 아침에 마셔야 제맛이라는 설문 결과.",
+  "고양이가 귤 냄새를 싫어한다는 사실, 농장 고양이는 예외인 듯.",
+  "마멀레이드 토스트, 올해의 브런치 메뉴로 선정.",
+  "농부들 사이에서 '귤 까기 대회' 개최 소식.",
+  "전문가: \"오렌지는 둥글기 때문에 굴러서 배달이 쉽다\" (사실 아님)",
+  "귤껍질 차가 의외로 인기라는 소문.",
+];
+
+/* ---------- state ---------- */
+function fresh(){
+  return {
+    money:0, stock:{o:0,j:0,m:0}, total:0, clicks:0,
+    sold:{o:0,j:0,m:0}, b:{}, up:{}, auto:{o:false,j:false,m:false},
+    run:{press:true, factory:true}, mk:{o:1,j:1,m:1}, rank:0, won:false, played:0
+  };
+}
+let s = fresh();
+try{
+  const raw = localStorage.getItem(SAVE_KEY);
+  if(raw){ const d = JSON.parse(raw); s = Object.assign(fresh(), d);
+    for(const k of ["stock","sold","auto","run","mk"]) s[k] = Object.assign(fresh()[k], d[k]||{}); }
+}catch(e){}
+for(const b of BUILDINGS) if(!s.b[b.id]) s.b[b.id]=0;
+
+let prevMk = {...s.mk};
+let ev = null;               // active event {type,label,until,bad}
+let nextEventAt = performance.now() + rand(35,60)*1000;
+let qty = 1;
+let incomeWindow = [];       // [time, amount]
+let lastRates = {o:0,j:0,m:0,t:0};
+
+/* ---------- helpers ---------- */
+function rand(a,b){return a+Math.random()*(b-a)}
+const $ = id => document.getElementById(id);
+function fmt(n, dec){
+  if(!isFinite(n)) return "0";
+  if(n < 0) return "-"+fmt(-n,dec);
+  if(dec && n < 100 && n % 1 !== 0) return n.toFixed(1).replace(/\.0$/,"");
+  if(n < 10000) return Math.floor(n).toLocaleString("ko-KR");
+  const u = [[1e16,"경"],[1e12,"조"],[1e8,"억"],[1e4,"만"]];
+  for(const [v,l] of u) if(n >= v){ const x=n/v; return (x<10?x.toFixed(2):x<100?x.toFixed(1):Math.floor(x).toLocaleString("ko-KR"))+l; }
+}
+const has = id => !!s.up[id];
+function clickMult(){ return (has("scissors")?2:1)*(has("gloves")?3:1)*(has("golden")?5:1)*(ev&&ev.type==="festival"?10:1); }
+function growMult(){ return (has("fert")?2:1)*(has("bee")?2:1)*(has("drone")?3:1)*(ev?(ev.type==="harvest"?3:ev.type==="typhoon"?0.4:1):1); }
+function procMult(){ return (has("press2")?2:1)*(has("robot")?3:1); }
+function truckMult(){ return has("truck2")?3:1; }
+function price(k){
+  let p = PRODUCTS[k].base * s.mk[k];
+  if(k==="o" && has("organic")) p*=1.5;
+  if(k==="j" && has("bottle")) p*=2;
+  if(k==="m" && has("recipe")) p*=2;
+  if(has("brand")) p*=2;
+  if(has("export")) p*=3;
+  if(ev && ev.type==="juiceboom" && k==="j") p*=3;
+  return p;
+}
+function growRate(){ let r=0; for(const b of BUILDINGS) if(b.kind==="grow") r+=s.b[b.id]*b.rate; return r*growMult(); }
+function perClick(){ return clickMult() + (has("smartclick") ? growRate()*0.1 : 0); }
+function costOf(b, n){ const owned=s.b[b.id]; return Math.ceil(b.cost*Math.pow(1.15,owned)*(Math.pow(1.15,n)-1)/0.15); }
+function unlocked(b){ return s.b[b.id]>0 || b.id==="tree" || s.total >= b.cost*0.35; }
+
+function sell(k, n){
+  if(n<=0) return 0;
+  const earn = n*price(k);
+  s.stock[k]-=n; if(s.stock[k]<1e-9) s.stock[k]=0;
+  s.money+=earn; s.total+=earn; s.sold[k]+=n;
+  incomeWindow.push([performance.now(), earn]);
+  return earn;
+}
+
+/* ---------- fx ---------- */
+function floatText(x,y,txt){
+  const el=document.createElement("div"); el.className="float"; el.textContent=txt;
+  el.style.left=(x-20)+"px"; el.style.top=(y-30)+"px"; document.body.appendChild(el);
+  setTimeout(()=>el.remove(),900);
+}
+function dropOrange(x,y){
+  const el=document.createElement("div"); el.className="drop"; el.textContent="🍊";
+  el.style.left=(x-13)+"px"; el.style.top=(y-13)+"px"; el.style.setProperty("--dx",rand(-50,50)+"px");
+  document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+}
+function toast(t){
+  document.querySelectorAll(".toast").forEach(e=>e.remove());
+  const el=document.createElement("div"); el.className="toast"; el.textContent=t;
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+}
+function news(t){ const el=$("newsTxt"); el.textContent=t; el.style.animation="none"; void el.offsetWidth; el.style.animation=""; }
+function modal(html, buttons){
+  $("modalBody").innerHTML=html; const bx=$("modalBtns"); bx.innerHTML="";
+  for(const [label,cls,fn] of buttons){ const b=document.createElement("button"); b.className="btn "+(cls||""); b.textContent=label;
+    b.onclick=()=>{ $("modal").hidden=true; fn&&fn(); }; bx.appendChild(b); }
+  $("modal").hidden=false;
+}
+
+/* ---------- tree fruits ---------- */
+const FRUIT_POS=[[70,60],[120,48],[100,92],[55,110],[145,108],[88,30],[135,80],[75,90],[112,118],[160,88],[40,92],[100,62]];
+function drawFruits(){
+  const total = BUILDINGS.reduce((a,b)=>a+(b.kind==="grow"?s.b[b.id]:0),0);
+  const n = Math.min(FRUIT_POS.length, 4 + Math.floor(Math.sqrt(total)*1.5));
+  const g=$("fruits"); if(g.childElementCount===n) return;
+  g.innerHTML = FRUIT_POS.slice(0,n).map(([x,y])=>
+    `<circle cx="${x}" cy="${y}" r="9" fill="#ff9a1a" stroke="#e06f00" stroke-width="1.5"/>
+     <circle cx="${x-3}" cy="${y-3}" r="2.5" fill="#ffd28a"/>
+     <path d="M${x} ${y-9} q3 -4 7 -3" stroke="#2e6e2a" stroke-width="2" fill="none"/>`).join("");
+}
+
+/* ---------- click ---------- */
+$("tree").addEventListener("click", e=>{
+  const n = perClick();
+  s.stock.o += n; s.clicks++;
+  const x = e.clientX || ($("tree").getBoundingClientRect().left+140);
+  const y = e.clientY || ($("tree").getBoundingClientRect().top+120);
+  floatText(x,y,"+"+fmt(n,true)+"🍊"); dropOrange(x,y);
+  const t=$("tree"); t.classList.remove("shake"); void t.offsetWidth; t.classList.add("shake");
+});
+
+/* ---------- market UI ---------- */
+const prodRefs={};
+(function buildProds(){
+  const wrap=$("prods");
+  for(const k of ["o","j","m"]){
+    const p=PRODUCTS[k], row=document.createElement("div"); row.className="prod";
+    row.innerHTML=`<div class="ico">${p.icon}</div>
+      <div><div class="nm">${p.name}</div><div class="stock">0</div><div class="price"></div></div>
+      <div class="acts"><button class="btn sellb">모두 판매</button><button class="btn ghost autob">자동판매 꺼짐</button></div>`;
+    wrap.appendChild(row);
+    const r={row, stock:row.querySelector(".stock"), price:row.querySelector(".price"), sell:row.querySelector(".sellb"), auto:row.querySelector(".autob")};
+    r.sell.onclick=e=>{ const earn=sell(k, s.stock[k]); if(earn>0) floatText(e.clientX,e.clientY,"+"+fmt(earn)+"원"); };
+    r.auto.onclick=()=>{ s.auto[k]=!s.auto[k]; if(s.auto[k] && !s.b.truck) toast("🚚 배달 트럭이 있어야 자동판매가 돼요!"); };
+    prodRefs[k]=r;
+  }
+})();
+
+/* ---------- shop UI ---------- */
+const bRefs={};
+function bDesc(b){
+  const pm=procMult();
+  switch(b.kind){
+    case "grow":  return `초당 🍊 ${fmt(b.rate*growMult(),true)}개 생산`;
+    case "press": return `초당 🍊${4*pm}개 → 🧃${pm}개 착즙`;
+    case "jam":   return `초당 🧃${3*pm}개 → 🫙${pm}개 생산`;
+    case "truck": return `자동판매 상품을 초당 ${b.rate*truckMult()}개 판매`;
+  }
+}
+(function buildShop(){
+  const list=$("buildList");
+  for(const b of BUILDINGS){
+    const el=document.createElement("div"); el.className="item";
+    el.innerHTML=`<div class="ico">${b.icon}</div><div><div class="t"></div><div class="d"></div></div>
+      <div class="side"><button class="btn buyb"></button></div>`;
+    list.appendChild(el);
+    const r={el, t:el.querySelector(".t"), d:el.querySelector(".d"), buy:el.querySelector(".buyb"), ico:el.querySelector(".ico"), side:el.querySelector(".side")};
+    if(b.kind==="press"||b.kind==="jam"){
+      const key=b.kind==="press"?"press":"factory";
+      const tg=document.createElement("button"); tg.className="btn ghost"; r.toggle=tg; r.key=key;
+      tg.onclick=()=>{ s.run[key]=!s.run[key]; };
+      r.side.appendChild(tg);
+    }
+    r.buy.onclick=()=>{
+      const c=costOf(b,qty); if(s.money<c || !unlocked(b)) return;
+      s.money-=c; s.b[b.id]+=qty; drawFruits();
+      if(s.b[b.id]===qty) firstBuyNews(b);
+    };
+    bRefs[b.id]=r;
+  }
+})();
+function firstBuyNews(b){
+  const m={farmer:"첫 농부를 고용했습니다! 농장에 활기가 돕니다.",truck:"🚚 배달 트럭 출발! 시장 탭에서 자동판매를 켜 보세요.",
+    press:"🥤 착즙기 도입! 귤을 주스로 바꿔 더 비싸게 팔 수 있어요.",factory:"🏭 잼 공장 가동! 주스를 마멀레이드로 만듭니다.",
+    orchard:"넓은 과수원을 매입했습니다.",smart:"스마트팜, 센서가 귤의 기분까지 측정한다고.",lab:"품종 연구소, 초대형 귤 개발에 착수.",island:"🏝️ 오렌지 섬 매입! 섬 전체가 귤밭이 되었습니다."};
+  if(m[b.id]) news(m[b.id]);
+}
+function renderUpgrades(){
+  const list=$("upgList"); list.innerHTML="";
+  const avail=UPGRADES.filter(u=>!has(u.id));
+  if(!avail.length){ list.innerHTML=`<div class="item"><div class="ico">🏆</div><div><div class="t">모든 업그레이드 완료!</div><div class="d">당신은 진정한 오렌지 마스터입니다.</div></div></div>`; return; }
+  for(const u of avail){
+    const el=document.createElement("div"); el.className="item"; el.dataset.cost=u.cost;
+    el.innerHTML=`<div class="ico">${u.icon}</div><div><div class="t">${u.name}</div><div class="d">${u.desc}</div></div>
+      <div class="side"><button class="btn">${fmt(u.cost)}원</button></div>`;
+    el.querySelector("button").onclick=()=>{
+      if(s.money<u.cost) return; s.money-=u.cost; s.up[u.id]=1; toast(`${u.icon} ${u.name} 구매!`); renderUpgrades();
+    };
+    list.appendChild(el);
+  }
+}
+renderUpgrades();
+
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));
+  const tab=t.dataset.tab;
+  $("buildList").hidden=tab!=="build"; $("upgList").hidden=tab!=="upg"; $("statList").hidden=tab!=="stat";
+  $("qty").style.visibility = tab==="build" ? "visible":"hidden";
+});
+document.querySelectorAll("#qty button").forEach(bt=>bt.onclick=()=>{
+  qty=+bt.dataset.q; document.querySelectorAll("#qty button").forEach(x=>x.classList.toggle("on",x===bt));
+});
+$("resetBtn").onclick=()=>modal(`<div style="font-size:48px">🍂</div><h3 class="jua">정말 처음부터?</h3><p>모든 돈, 시설, 업그레이드가 사라져요.</p>`,
+  [["취소","ghost"],["다시 시작","danger",()=>{ s=fresh(); for(const b of BUILDINGS) s.b[b.id]=0; save(); renderUpgrades(); drawFruits(); news("새로운 귤밭에서 다시 시작합니다!"); }]]);
+
+/* ---------- events ---------- */
+const EVENTS = [
+  {type:"harvest",  label:"🌞 풍년! 생산량 3배",          dur:30, w:3},
+  {type:"typhoon",  label:"🌀 태풍 경보! 생산량 감소",      dur:20, w:1.5, bad:true},
+  {type:"juiceboom",label:"🥤 주스 열풍! 주스 가격 3배",    dur:30, w:2, need:()=>s.b.press>0},
+  {type:"festival", label:"🎉 오렌지 축제! 클릭 수확 10배", dur:20, w:2},
+  {type:"golden",   w:3},
+];
+function startEvent(){
+  const pool=EVENTS.filter(e=>!e.need||e.need()); let tw=pool.reduce((a,e)=>a+e.w,0), r=Math.random()*tw;
+  let pick=pool[0]; for(const e of pool){ if((r-=e.w)<=0){pick=e;break;} }
+  if(pick.type==="golden"){ spawnGolden(); return; }
+  ev={type:pick.type,label:pick.label,until:performance.now()+pick.dur*1000,bad:!!pick.bad};
+  toast(pick.label); news(pick.label.replace(/^\S+\s/,"")+" 소식이 전해졌습니다.");
+}
+function spawnGolden(){
+  if($("golden")) return;
+  const g=document.createElement("button"); g.id="golden"; g.textContent="🍊"; g.setAttribute("aria-label","황금 오렌지");
+  const W=innerWidth,H=innerHeight; let x=rand(40,W-100), y=rand(120,H-160);
+  g.style.left=x+"px"; g.style.top=y+"px"; document.body.appendChild(g);
+  news("✨ 황금 오렌지가 나타났다! 사라지기 전에 잡으세요!");
+  const vx=rand(-60,60), vy=rand(-40,40); const born=performance.now();
+  const move=()=>{ if(!g.isConnected) return; const t=(performance.now()-born)/1000;
+    if(t>9){ g.remove(); return; }
+    g.style.left=Math.max(10,Math.min(W-70,x+vx*t))+"px"; g.style.top=Math.max(80,Math.min(H-120,y+vy*t))+"px";
+    g.style.opacity = t>7 ? (9-t)/2 : 1; requestAnimationFrame(move); };
+  requestAnimationFrame(move);
+  g.onclick=e=>{
+    const value = Math.max(100, (growRate()*price("o") + incomeRate())*45 + s.money*0.05);
+    s.money+=value; s.total+=value; floatText(e.clientX,e.clientY,"+"+fmt(value)+"원!");
+    toast(`✨ 황금 오렌지! +${fmt(value)}원`); g.remove();
+  };
+}
+function incomeRate(){
+  const now=performance.now(); incomeWindow=incomeWindow.filter(x=>now-x[0]<5000);
+  return incomeWindow.reduce((a,x)=>a+x[1],0)/5;
+}
+
+/* ---------- loop ---------- */
+let last=performance.now(), mkTimer=0, uiTimer=0, saveTimer=0;
+function tick(now){
+  let dt=Math.min(1,(now-last)/1000); last=now; s.played+=dt;
+  if(ev && now>ev.until){ ev=null; }
+  if(now>nextEventAt){ startEvent(); nextEventAt=now+rand(45,90)*1000; }
+
+  // grow
+  const g=growRate(); s.stock.o+=g*dt;
+  // press
+  const pm=procMult(); let jRate=0, mRate=0;
+  if(s.run.press && s.b.press){ const want=s.b.press*pm*dt; const got=Math.min(want, s.stock.o/4); s.stock.o-=got*4; s.stock.j+=got; jRate=got/dt; }
+  if(s.run.factory && s.b.factory){ const want=s.b.factory*pm*dt; const got=Math.min(want, s.stock.j/3); s.stock.j-=got*3; s.stock.m+=got; mRate=got/dt; }
+  // trucks
+  let tRate=0;
+  if(s.b.truck){ let cap=s.b.truck*8*truckMult()*dt;
+    for(const k of ["m","j","o"]){ if(!s.auto[k]||cap<=0) continue; const n=Math.min(cap,s.stock[k]); sell(k,n); cap-=n; tRate+=n/dt; } }
+  lastRates={o:g, j:jRate, m:mRate, t:tRate};
+
+  // market
+  mkTimer+=dt; if(mkTimer>4){ mkTimer=0; prevMk={...s.mk};
+    for(const k in s.mk){ let m=s.mk[k]+(Math.random()-.5)*0.22+(1-s.mk[k])*0.08; s.mk[k]=Math.max(.55,Math.min(1.9,m)); } }
+
+  // rank
+  let ri=0; RANKS.forEach((r,i)=>{ if(s.total>=r[0]) ri=i; });
+  if(ri>s.rank){ s.rank=ri; toast(`🎖️ 승급! 이제 당신은 '${RANKS[ri][1]}'`); news(`${RANKS[ri][1]} 탄생! 업계가 주목합니다.`); }
+  if(!s.won && s.total>=GOAL){ s.won=true;
+    modal(`<div style="font-size:64px">👑🍊</div><h3 class="jua">오렌지 제국 완성!</h3><p>누적 매출 1억 원 달성!<br>플레이 시간 ${playTime()} · 클릭 ${fmt(s.clicks)}번</p>`,[["계속 키우기","green"]]); }
+
+  uiTimer+=dt; if(uiTimer>0.1){ uiTimer=0; render(); }
+  saveTimer+=dt; if(saveTimer>5){ saveTimer=0; save(); }
+  requestAnimationFrame(tick);
+}
+function playTime(){ const t=Math.floor(s.played); const h=Math.floor(t/3600), m=Math.floor(t%3600/60), sec=t%60; return (h?h+"시간 ":"")+m+"분 "+sec+"초"; }
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(s)); }catch(e){} }
+addEventListener("visibilitychange",()=>{ if(document.hidden) save(); });
+
+/* ---------- render ---------- */
+function render(){
+  $("money").textContent=fmt(s.money);
+  const ir=incomeRate(); $("mps").textContent = ir>0 ? `(+${fmt(ir,true)}/초)` : "";
+  $("rank").textContent=RANKS[s.rank][1];
+  const pct=Math.min(100,s.total/GOAL*100);
+  $("goalFill").style.width=pct+"%";
+  $("goalTxt").textContent = s.total>=GOAL ? "🏆 목표 달성! 오렌지 제국 완성" : `목표: 누적 매출 1억 원 — ${fmt(s.total)}원 (${pct.toFixed(pct<1?2:1)}%)`;
+  $("perClick").textContent=fmt(perClick(),true);
+  $("rO").textContent=fmt(lastRates.o,true)+"/초";
+  $("rJ").textContent=fmt(lastRates.j,true)+"/초";
+  $("rM").textContent=fmt(lastRates.m,true)+"/초";
+  $("rT").textContent=fmt(lastRates.t,true)+"개/초";
+
+  // event
+  const eb=$("eventBanner");
+  if(ev){ eb.hidden=false; eb.className="event"+(ev.bad?" bad":""); eb.textContent=`${ev.label} · ${Math.ceil((ev.until-performance.now())/1000)}초`; }
+  else eb.hidden=true;
+
+  // market
+  for(const k of ["o","j","m"]){
+    const r=prodRefs[k], st=s.stock[k], p=price(k);
+    const isLocked = k==="j" ? (!s.b.press && s.stock.j<1 && !s.sold.j) : k==="m" ? (!s.b.factory && s.stock.m<1 && !s.sold.m) : false;
+    r.row.classList.toggle("locked",isLocked);
+    r.stock.textContent=fmt(Math.floor(st))+"개";
+    const d=s.mk[k]-prevMk[k], arrow = d>0.005?'<span class="up">▲</span>':d<-0.005?'<span class="down">▼</span>':"–";
+    r.price.innerHTML=`개당 ${fmt(p,true)}원 ${arrow} <span style="opacity:.7">(시세 ${Math.round(s.mk[k]*100)}%)</span>`;
+    r.sell.disabled = st<1;
+    r.sell.textContent = st>=1 ? `판매 +${fmt(st*p)}원` : "모두 판매";
+    r.auto.classList.toggle("on",s.auto[k]); r.auto.textContent = s.auto[k]?"자동판매 켜짐":"자동판매 꺼짐";
+    r.auto.disabled=isLocked;
+  }
+
+  // buildings
+  let shownLocked=false;
+  for(const b of BUILDINGS){
+    const r=bRefs[b.id], un=unlocked(b);
+    if(!un){ r.el.style.display = shownLocked ? "none" : ""; shownLocked=true;
+      r.el.classList.add("locked"); r.ico.textContent="🔒"; r.t.textContent="???"; r.d.textContent=`누적 매출 ${fmt(b.cost*0.35)}원에 공개`; r.buy.disabled=true; r.buy.textContent="잠김";
+      if(r.toggle) r.toggle.style.display="none"; continue; }
+    r.el.style.display=""; r.el.classList.remove("locked"); r.ico.textContent=b.icon;
+    r.t.innerHTML=`${b.name}<span class="own">${s.b[b.id]}개</span>`;
+    r.d.textContent=bDesc(b);
+    const c=costOf(b,qty); r.buy.textContent=`${qty>1?"×"+qty+" ":""}${fmt(c)}원`; r.buy.disabled=s.money<c;
+    r.el.classList.toggle("afford",s.money>=c);
+    if(r.toggle){ r.toggle.style.display = s.b[b.id] ? "" : "none"; const on=s.run[r.key]; r.toggle.classList.toggle("on",on); r.toggle.textContent=on?"가동 중":"정지됨"; }
+  }
+  // upgrades affordability
+  document.querySelectorAll("#upgList .item").forEach(el=>{ const c=+el.dataset.cost; const bt=el.querySelector("button"); if(bt&&c){ bt.disabled=s.money<c; el.classList.toggle("afford",s.money>=c);} });
+
+  // stats
+  if(!$("statList").hidden){
+    $("stats").innerHTML = [
+      ["등급",RANKS[s.rank][1]],["누적 매출",fmt(s.total)+"원"],["플레이 시간",playTime()],["클릭 수",fmt(s.clicks)+"번"],
+      ["판매한 🍊",fmt(s.sold.o)+"개"],["판매한 🧃",fmt(s.sold.j)+"개"],["판매한 🫙",fmt(s.sold.m)+"개"],
+      ["보유 시설",BUILDINGS.reduce((a,b)=>a+s.b[b.id],0)+"개"],["업그레이드",Object.keys(s.up).length+" / "+UPGRADES.length],
+    ].map(([a,b])=>`<span>${a}</span><span>${b}</span>`).join("");
+  }
+}
+
+/* ---------- start ---------- */
+drawFruits(); render();
+setInterval(()=>{ if(!ev && Math.random()<.5) news(NEWS[Math.floor(Math.random()*NEWS.length)]); },25000);
+if(s.total===0) setTimeout(()=>modal(`<div style="font-size:64px">🍊</div><h3 class="jua">오렌지 타이쿤</h3><p>귤나무 한 그루로 시작해 <b>누적 매출 1억 원</b>의<br>오렌지 제국을 세워보세요!<br><br>🌳 나무 클릭 → 🍊 수확 → 💰 판매<br>🥤 착즙기 · 🏭 잼 공장으로 더 비싸게!<br>✨ 가끔 나타나는 황금 오렌지를 놓치지 마세요.</p>`,[["시작하기!",""]]),300);
+requestAnimationFrame(t=>{ last=t; requestAnimationFrame(tick); });
+})();
+</script>
+</body>
+</html>
